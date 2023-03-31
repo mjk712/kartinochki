@@ -24,6 +24,11 @@ func ParceUrl(u string) (string, error) {
 	return ur.String(), nil
 }
 
+func GetImgCheckName(x, y, imgname string) string {
+	imgName := x + "_" + y + imgname
+	return imgName
+}
+
 func GetImgName(u string) (string, error) {
 	r, err := http.NewRequest("GET", u, nil)
 
@@ -57,4 +62,11 @@ func DownloadFile(URL, filename string) error {
 		return er
 	}
 	return nil
+}
+
+func MoveFile(newPath, filename string) {
+	err := os.Rename(filename, newPath)
+	if err != nil {
+		e.Wrap("Move error", err)
+	}
 }

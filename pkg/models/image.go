@@ -45,6 +45,26 @@ func EncodeImage(img image.Image, filename, x, y string) ([]byte, error) {
 		e.Wrap(errMsg, err)
 		return nil, err
 	}
+	//utils.MoveFile("C:/Users/mjk71/Desktop/kartinochki/db/", imgName)
+	return buf, nil
+}
+
+func EncodeRawImage(img image.Image, filename string) ([]byte, error) {
+	const errMsg = "Error By Encode Cashed Image"
+
+	out, err := os.Create(filename)
+	if err != nil {
+		e.Wrap(errMsg, err)
+		return nil, err
+	}
+	jpeg.Encode(out, img, nil)
+	buf, err := ioutil.ReadFile(filename)
+
+	if err != nil {
+		e.Wrap(errMsg, err)
+		return nil, err
+	}
+	//utils.MoveFile("C:/Users/mjk71/Desktop/kartinochki/db/", imgName)
 	return buf, nil
 }
 

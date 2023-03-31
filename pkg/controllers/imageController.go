@@ -10,6 +10,8 @@ import (
 	//"net/url"
 
 	"github.com/gorilla/mux"
+	//"github.com/mjk712/kartinochki/cmd"
+	"github.com/mjk712/kartinochki/pkg/cash"
 	"github.com/mjk712/kartinochki/pkg/lib/e"
 	"github.com/mjk712/kartinochki/pkg/models"
 	"github.com/mjk712/kartinochki/pkg/utils"
@@ -17,12 +19,15 @@ import (
 
 func ImageShow(w http.ResponseWriter, r *http.Request) {
 
+	c := cash.NewLru(1)
+
+	var a int
+
 	vars := mux.Vars(r)
 	imageX := vars["imageX"]
 	imageY := vars["imageY"]
 	rawUrl := vars["imgUrl"]
 	imgUrl := "https://" + rawUrl
-	//fmt.Println(imgUrl)
 
 	Y, err := strconv.ParseInt(imageY, 0, 0)
 	if err != nil {
@@ -41,6 +46,18 @@ func ImageShow(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Print(err)
 	}
+	checkName := utils.GetImgCheckName(imageX, imageY, imgName)
+
+	//Проверяю на наличие в кэшэ
+	if img := c.Get(checkName); img != nil {
+		buf, err := models.EncodeRawImage(img, checkName)
+		if err != nil {
+			fmt.Fprintln(w, "error while Encoding image")
+		}
+		utils.DeleteImg(imgName)
+
+		w.Write(buf)
+	}
 
 	img := models.DecodeImage(imgPath, imgName)
 
@@ -52,8 +69,13 @@ func ImageShow(w http.ResponseWriter, r *http.Request) {
 	}
 	utils.DeleteImg(imgName)
 
+	//прописать добавление картинки в кэш
+	a++
+	c.Set(imgName, resImg)
+	utils.DeleteImg(checkName)
+
 	w.Header().Set("Content-Type", "image/jpeg")
-	//w.Header().Set("Content-Disposition", `attachment;filename="kit.jpeg"`)
 
 	w.Write(buf)
+
 }
