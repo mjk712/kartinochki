@@ -4,11 +4,27 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+
+	"github.com/mjk712/kartinochki/pkg/cash"
 	"github.com/mjk712/kartinochki/pkg/controllers"
 )
 
-var KartinkiRoutes = func(router *mux.Router) {
+type Router struct {
+	router *mux.Router
+	cache  *cash.LRU
+}
 
-	router.HandleFunc("/imageredact/{imageX}/{imageY}/{imgUrl:.*}", controllers.ImageShow).Methods(http.MethodGet)
-	//router.HandleFunc("/image/{imageX}/{imageY}/{imgUrl}", controllers.ImageShow).Methods(http.MethodGet)
+func NewRouter(router *mux.Router, cache *cash.LRU) Router {
+	return Router{
+		router: router,
+		cache:  cache,
+	}
+}
+
+func (r Router) KartinkiRoutes() {
+	c := controllers.NewController(r.cache)
+	r.router.HandleFunc("/imageredact/{imageX}/{imageY}/{imgUrl:.*}", c.ImageShow).Methods(http.MethodGet)
+
+	// r.cache.Set()
+	// router.HandleFunc("/image/{imageX}/{imageY}/{imgUrl}", controllers.ImageShow).Methods(http.MethodGet)
 }

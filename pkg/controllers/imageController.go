@@ -1,25 +1,33 @@
 package controllers
 
 import (
-	//"bytes"
+	// "bytes"
 
 	"fmt"
 	"net/http"
 	"strconv"
 
-	//"net/url"
+	// "net/url"
 
 	"github.com/gorilla/mux"
-	//"github.com/mjk712/kartinochki/cmd"
+	// "github.com/mjk712/kartinochki/cmd"
 	"github.com/mjk712/kartinochki/pkg/cash"
 	"github.com/mjk712/kartinochki/pkg/lib/e"
 	"github.com/mjk712/kartinochki/pkg/models"
 	"github.com/mjk712/kartinochki/pkg/utils"
 )
 
-func ImageShow(w http.ResponseWriter, r *http.Request) {
+type Controller struct {
+	cache *cash.LRU
+}
 
-	c := cash.NewLru(1)
+func NewController(cache *cash.LRU) Controller {
+	return Controller{
+		cache: cache,
+	}
+}
+
+func (c *Controller) ImageShow(w http.ResponseWriter, r *http.Request) {
 
 	var a int
 
@@ -48,8 +56,8 @@ func ImageShow(w http.ResponseWriter, r *http.Request) {
 	}
 	checkName := utils.GetImgCheckName(imageX, imageY, imgName)
 
-	//Проверяю на наличие в кэшэ
-	if img := c.Get(checkName); img != nil {
+	// Проверяю на наличие в кэшэ
+	if img := c.cache.Get(checkName); img != nil {
 		buf, err := models.EncodeRawImage(img, checkName)
 		if err != nil {
 			fmt.Fprintln(w, "error while Encoding image")
@@ -69,9 +77,9 @@ func ImageShow(w http.ResponseWriter, r *http.Request) {
 	}
 	utils.DeleteImg(imgName)
 
-	//прописать добавление картинки в кэш
+	// прописать добавление картинки в кэш
 	a++
-	c.Set(imgName, resImg)
+	c.cache.Set(imgName, resImg)
 	utils.DeleteImg(checkName)
 
 	w.Header().Set("Content-Type", "image/jpeg")
