@@ -20,7 +20,11 @@ func NewRouter(router *mux.Router, cache *cash.LRU) Router {
 		cache:  cache,
 	}
 }
+
 func (r Router) KartinkiRoutes() {
-	r.router.HandleFunc("/imageredact/{imageX}/{imageY}/{imgUrl:.*}", controllers.ImageShow).Methods(http.MethodGet)
+	c := controllers.NewController(r.cache)
+	r.router.HandleFunc("/imageredact/{imageX}/{imageY}/{imgUrl:.*}", c.ImageShow).Methods(http.MethodGet)
+
+	// r.cache.Set()
 	// router.HandleFunc("/image/{imageX}/{imageY}/{imgUrl}", controllers.ImageShow).Methods(http.MethodGet)
 }
