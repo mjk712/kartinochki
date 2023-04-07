@@ -3,18 +3,11 @@ package cash
 import (
 	"container/list"
 	"fmt"
-
-	//"fmt"
-	"image/jpeg"
-	//"io"
-	//"io/ioutil"
-	//"fmt"
-	"os"
-	//"io"
 	"image"
-	//"image/jpeg"
-	//"strconv"
+	"image/jpeg"
+	"os"
 
+	"github.com/mjk712/kartinochki/pkg/config"
 	"github.com/mjk712/kartinochki/pkg/lib/e"
 )
 
@@ -38,6 +31,7 @@ func NewLru(capacity int) *LRU {
 }
 
 func (c *LRU) Set(key string, value image.Image) bool {
+
 	if element, exists := c.items[key]; exists == true {
 		c.queue.MoveToFront(element)
 		element.Value.(*Item).Value = value
@@ -45,7 +39,8 @@ func (c *LRU) Set(key string, value image.Image) bool {
 	}
 
 	if c.queue.Len() == c.capacity {
-		c.MoveToDb(key)
+		fmt.Println("mnogo cache")
+		c.MoveToDb()
 		c.purge()
 	}
 
@@ -74,25 +69,26 @@ func (c *LRU) Get(key string) image.Image {
 	return element.Value.(*Item).Value
 }
 
-func (c *LRU) MoveToDb(key string) error {
+func (c *LRU) MoveToDb() error {
 
-	element, exists := c.items[key]
-	if exists == false {
+	if element := c.queue.Back(); element != nil {
+
+		img := element.Value.(*Item).Value
+
+		dbImg, err := os.Create(config.DbPath() + element.Value.(*Item).Key)
+		if err != nil {
+			er := e.Wrap("error while move to db", err)
+			return er
+		}
+		defer dbImg.Close()
+
+		if err = jpeg.Encode(dbImg, img, nil); err != nil {
+			e.Wrap("error encode", err)
+		}
+		fmt.Println("FUCK WORK")
 		return nil
+
 	}
 
-	img := element.Value.(*Item).Value
-
-	dbImg, err := os.Create("img.jpg")
-	if err != nil {
-		er := e.Wrap("error while move to db", err)
-		return er
-	}
-	defer dbImg.Close()
-
-	if err = jpeg.Encode(dbImg, img, nil); err != nil {
-		e.Wrap("error encode", err)
-	}
-	fmt.Println("FUCK WORK")
 	return nil
 }

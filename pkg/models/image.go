@@ -29,24 +29,24 @@ func DecodeImage(url, filename string) image.Image {
 	return img
 }
 
-func EncodeImage(img image.Image, filename, x, y string) ([]byte, error) {
+func EncodeImage(img image.Image, filename, x, y string) ([]byte, string, error) {
 	const errMsg = "Error By Encode Image"
 	imgName := x + "_" + y + filename
 
 	out, err := os.Create(imgName)
 	if err != nil {
 		e.Wrap(errMsg, err)
-		return nil, err
+		return nil, "", err
 	}
 	jpeg.Encode(out, img, nil)
 	buf, err := ioutil.ReadFile(imgName)
 
 	if err != nil {
 		e.Wrap(errMsg, err)
-		return nil, err
+		return nil, "", err
 	}
-	//utils.MoveFile("C:/Users/mjk71/Desktop/kartinochki/db/", imgName)
-	return buf, nil
+
+	return buf, imgName, nil
 }
 
 func EncodeRawImage(img image.Image, filename string) ([]byte, error) {
@@ -64,7 +64,7 @@ func EncodeRawImage(img image.Image, filename string) ([]byte, error) {
 		e.Wrap(errMsg, err)
 		return nil, err
 	}
-	//utils.MoveFile("C:/Users/mjk71/Desktop/kartinochki/db/", imgName)
+
 	return buf, nil
 }
 

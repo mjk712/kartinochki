@@ -4,13 +4,12 @@ import (
 	// "bytes"
 
 	"fmt"
+	"image/jpeg"
 	"net/http"
+	"os"
 	"strconv"
 
-	// "net/url"
-
 	"github.com/gorilla/mux"
-	// "github.com/mjk712/kartinochki/cmd"
 	"github.com/mjk712/kartinochki/pkg/cash"
 	"github.com/mjk712/kartinochki/pkg/lib/e"
 	"github.com/mjk712/kartinochki/pkg/models"
@@ -28,9 +27,7 @@ func NewController(cache *cash.LRU) Controller {
 }
 
 func (c *Controller) ImageShow(w http.ResponseWriter, r *http.Request) {
-
-	var a int
-
+	//db := config.DbPath()
 	vars := mux.Vars(r)
 	imageX := vars["imageX"]
 	imageY := vars["imageY"]
@@ -55,35 +52,58 @@ func (c *Controller) ImageShow(w http.ResponseWriter, r *http.Request) {
 		fmt.Print(err)
 	}
 	checkName := utils.GetImgCheckName(imageX, imageY, imgName)
-
+	fmt.Println(checkName)
 	// Проверяю на наличие в кэшэ
+
 	if img := c.cache.Get(checkName); img != nil {
+
 		buf, err := models.EncodeRawImage(img, checkName)
 		if err != nil {
 			fmt.Fprintln(w, "error while Encoding image")
 		}
+		utils.DeleteImg(checkName)
+		fmt.Println("found in cache")
+		w.Write(buf)
+		//проверяю на наличие в db
+
+	} else if utils.FileExists(checkName) {
+
+		//file, err := os.Open("./kartinochki/cmd/db/" + checkName) показать максу
+		file, err := os.Open("/home/greg/Рабочий стол/kartinochki/kartinochki/cmd/db/" + checkName)
+		if err != nil {
+			fmt.Println("err db img")
+		}
+
+		dbimg, err := jpeg.Decode(file)
+		if err != nil {
+			fmt.Println("err db img")
+		}
+
+		buf, err := models.EncodeRawImage(dbimg, checkName)
+		if err != nil {
+			fmt.Fprintln(w, "error while Encoding image")
+		}
+		utils.DeleteImg(checkName)
+		fmt.Println("found in db")
+		w.Write(buf)
+
+	} else {
+		img := models.DecodeImage(imgPath, imgName)
+
+		resImg := models.ResizeImage(uint(X), uint(Y), img)
+
+		buf, newImgName, err := models.EncodeImage(resImg, imgName, imageX, imageY)
+		if err != nil {
+			fmt.Fprintln(w, "error while Encoding image")
+		}
+		utils.DeleteImg(newImgName)
+
+		c.cache.Set(newImgName, resImg)
+		fmt.Println(newImgName + "gay")
 		utils.DeleteImg(imgName)
+
+		w.Header().Set("Content-Type", "image/jpeg")
 
 		w.Write(buf)
 	}
-
-	img := models.DecodeImage(imgPath, imgName)
-
-	resImg := models.ResizeImage(uint(X), uint(Y), img)
-
-	buf, err := models.EncodeImage(resImg, imgName, imageX, imageY)
-	if err != nil {
-		fmt.Fprintln(w, "error while Encoding image")
-	}
-	utils.DeleteImg(imgName)
-
-	// прописать добавление картинки в кэш
-	a++
-	c.cache.Set(imgName, resImg)
-	utils.DeleteImg(checkName)
-
-	w.Header().Set("Content-Type", "image/jpeg")
-
-	w.Write(buf)
-
 }

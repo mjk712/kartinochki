@@ -63,6 +63,13 @@ func DownloadFile(URL, filename string) error {
 	}
 	return nil
 }
+func FileExists(filename string) bool {
+	info, err := os.Stat("/home/greg/Рабочий стол/kartinochki/kartinochki/cmd/db/" + filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !info.IsDir()
+}
 
 func MoveFile(newPath, filename string) {
 	err := os.Rename(filename, newPath)
