@@ -6,6 +6,7 @@ import (
 	"image"
 	"image/jpeg"
 	"os"
+	"sync"
 
 	"github.com/mjk712/kartinochki/pkg/config"
 	"github.com/mjk712/kartinochki/pkg/lib/e"
@@ -20,6 +21,7 @@ type LRU struct {
 	capacity int
 	items    map[string]*list.Element
 	queue    *list.List
+	lock     sync.RWMutex
 }
 
 func NewLru(capacity int) *LRU {
@@ -32,6 +34,7 @@ func NewLru(capacity int) *LRU {
 
 func (c *LRU) Set(key string, value image.Image) bool {
 
+	c.lock.Lock()
 	if element, exists := c.items[key]; exists == true {
 		c.queue.MoveToFront(element)
 		element.Value.(*Item).Value = value
@@ -41,7 +44,9 @@ func (c *LRU) Set(key string, value image.Image) bool {
 	if c.queue.Len() == c.capacity {
 		fmt.Println("mnogo cache")
 		c.MoveToDb()
+		c.lock.Lock()
 		c.purge()
+		c.lock.Unlock()
 	}
 
 	item := &Item{
@@ -51,6 +56,7 @@ func (c *LRU) Set(key string, value image.Image) bool {
 
 	element := c.queue.PushFront(item)
 	c.items[item.Key] = element
+	c.lock.Unlock()
 	return true
 }
 
@@ -61,15 +67,19 @@ func (c *LRU) purge() {
 	}
 }
 func (c *LRU) Get(key string) image.Image {
+	c.lock.Lock()
 	element, exists := c.items[key]
 	if exists == false {
 		return nil
 	}
 	c.queue.MoveToFront(element)
+	c.lock.Unlock()
 	return element.Value.(*Item).Value
 }
 
 func (c *LRU) MoveToDb() error {
+
+	c.lock.Lock()
 
 	if element := c.queue.Back(); element != nil {
 
@@ -89,6 +99,7 @@ func (c *LRU) MoveToDb() error {
 		return nil
 
 	}
+	c.lock.Unlock()
 
 	return nil
 }
