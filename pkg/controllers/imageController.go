@@ -55,7 +55,7 @@ func (c *Controller) ImageShow(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(checkName)
 	// Проверяю на наличие в кэшэ
 
-	if img := c.cache.Get(checkName); img != nil {
+	if img, ok := c.cache.Get(checkName); ok == true {
 
 		buf, err := models.EncodeRawImage(img, checkName)
 		if err != nil {
@@ -68,7 +68,6 @@ func (c *Controller) ImageShow(w http.ResponseWriter, r *http.Request) {
 
 	} else if utils.FileExists(checkName) {
 
-		//file, err := os.Open("./kartinochki/cmd/db/" + checkName) показать максу
 		file, err := os.Open("/home/greg/Рабочий стол/kartinochki/kartinochki/cmd/db/" + checkName)
 		if err != nil {
 			fmt.Println("err db img")

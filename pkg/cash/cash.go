@@ -66,15 +66,15 @@ func (c *LRU) purge() {
 		delete(c.items, item.Key)
 	}
 }
-func (c *LRU) Get(key string) image.Image {
+func (c *LRU) Get(key string) (image.Image, bool) {
 	c.lock.Lock()
 	element, exists := c.items[key]
 	if exists == false {
-		return nil
+		return nil, false
 	}
 	c.queue.MoveToFront(element)
 	c.lock.Unlock()
-	return element.Value.(*Item).Value
+	return element.Value.(*Item).Value, true
 }
 
 func (c *LRU) MoveToDb() error {
