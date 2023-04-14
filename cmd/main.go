@@ -6,10 +6,13 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/mjk712/kartinochki/pkg/cash"
-	"github.com/mjk712/kartinochki/pkg/config"
+	"github.com/mjk712/kartinochki/cash"
+	"github.com/mjk712/kartinochki/config"
 	"github.com/mjk712/kartinochki/pkg/routes"
 )
+
+type app struct {
+}
 
 func main() {
 	r := mux.NewRouter()

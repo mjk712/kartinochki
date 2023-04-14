@@ -10,10 +10,11 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
-	"github.com/mjk712/kartinochki/pkg/cash"
-	"github.com/mjk712/kartinochki/pkg/lib/e"
+	"github.com/mjk712/kartinochki/cash"
+	"github.com/mjk712/kartinochki/config"
+	"github.com/mjk712/kartinochki/lib/e"
 	"github.com/mjk712/kartinochki/pkg/models"
-	"github.com/mjk712/kartinochki/pkg/utils"
+	"github.com/mjk712/kartinochki/utils"
 )
 
 type Controller struct {
@@ -27,7 +28,7 @@ func NewController(cache *cash.LRU) Controller {
 }
 
 func (c *Controller) ImageShow(w http.ResponseWriter, r *http.Request) {
-	//db := config.DbPath()
+	db := config.DbPath()
 	vars := mux.Vars(r)
 	imageX := vars["imageX"]
 	imageY := vars["imageY"]
@@ -68,7 +69,8 @@ func (c *Controller) ImageShow(w http.ResponseWriter, r *http.Request) {
 
 	} else if utils.FileExists(checkName) {
 
-		file, err := os.Open("/home/greg/Рабочий стол/kartinochki/kartinochki/cmd/db/" + checkName)
+		//file, err := os.Open("/home/greg/Рабочий стол/kartinochki/kartinochki/cmd/db/" + checkName)
+		file, err := os.Open(db + checkName)
 		if err != nil {
 			fmt.Println("err db img")
 		}

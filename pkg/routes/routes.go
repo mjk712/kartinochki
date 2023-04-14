@@ -5,7 +5,7 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/mjk712/kartinochki/pkg/cash"
+	"github.com/mjk712/kartinochki/cash"
 	"github.com/mjk712/kartinochki/pkg/controllers"
 )
 
@@ -24,7 +24,4 @@ func NewRouter(router *mux.Router, cache *cash.LRU) Router {
 func (r Router) KartinkiRoutes() {
 	c := controllers.NewController(r.cache)
 	r.router.HandleFunc("/imageredact/{imageX}/{imageY}/{imgUrl:.*}", c.ImageShow).Methods(http.MethodGet)
-
-	// r.cache.Set()
-	// router.HandleFunc("/image/{imageX}/{imageY}/{imgUrl}", controllers.ImageShow).Methods(http.MethodGet)
 }

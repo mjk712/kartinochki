@@ -7,8 +7,8 @@ import (
 
 	"os"
 
-	"github.com/mjk712/kartinochki/pkg/lib/e"
-	"github.com/mjk712/kartinochki/pkg/utils"
+	"github.com/mjk712/kartinochki/lib/e"
+	"github.com/mjk712/kartinochki/utils"
 	"github.com/nfnt/resize"
 )
 
