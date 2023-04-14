@@ -80,4 +80,5 @@ func TestCache(t *testing.T) {
 		_, ok = c.Get("First")
 		require.False(t, ok)
 	})
+
 }
