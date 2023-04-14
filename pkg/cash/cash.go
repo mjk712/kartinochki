@@ -44,9 +44,9 @@ func (c *LRU) Set(key string, value image.Image) bool {
 	if c.queue.Len() == c.capacity {
 		fmt.Println("mnogo cache")
 		c.MoveToDb()
-		c.lock.Lock()
+		//c.lock.Lock()
 		c.purge()
-		c.lock.Unlock()
+		//c.lock.Unlock()
 	}
 
 	item := &Item{
@@ -57,7 +57,7 @@ func (c *LRU) Set(key string, value image.Image) bool {
 	element := c.queue.PushFront(item)
 	c.items[item.Key] = element
 	c.lock.Unlock()
-	return true
+	return false
 }
 
 func (c *LRU) purge() {
@@ -68,12 +68,12 @@ func (c *LRU) purge() {
 }
 func (c *LRU) Get(key string) (image.Image, bool) {
 	c.lock.Lock()
+	defer c.lock.Unlock()
 	element, exists := c.items[key]
 	if exists == false {
 		return nil, false
 	}
 	c.queue.MoveToFront(element)
-	c.lock.Unlock()
 	return element.Value.(*Item).Value, true
 }
 
