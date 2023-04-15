@@ -2,7 +2,6 @@ package cash
 
 import (
 	"container/list"
-	"fmt"
 	"image"
 	"image/jpeg"
 	"os"
@@ -43,7 +42,6 @@ func (c *LRU) Set(key string, value image.Image) bool {
 	}
 
 	if c.queue.Len() == c.capacity {
-		fmt.Println("mnogo cache")
 		c.MoveToDb()
 		c.purge()
 	}
@@ -92,7 +90,7 @@ func (c *LRU) MoveToDb() error {
 		if err = jpeg.Encode(dbImg, img, nil); err != nil {
 			e.Wrap("error encode", err)
 		}
-		fmt.Println("FUCK WORK")
+
 		return nil
 
 	}

@@ -46,16 +46,15 @@ func (c *Controller) ImageShow(w http.ResponseWriter, r *http.Request) {
 
 	imgPath, err := utils.ParceUrl(imgUrl)
 	if err != nil {
-		fmt.Print(err)
+		e.Wrap("Error while parsing Url", err)
 	}
 	imgName, err := utils.GetImgName(imgPath)
 	if err != nil {
-		fmt.Print(err)
+		e.Wrap("Error Get image name", err)
 	}
 	checkName := utils.GetImgCheckName(imageX, imageY, imgName)
-	fmt.Println(checkName)
-	// Проверяю на наличие в кэшэ
 
+	// Проверяю на наличие в кэшэ
 	if img, ok := c.cache.Get(checkName); ok == true {
 
 		buf, err := models.EncodeRawImage(img, checkName)
@@ -63,29 +62,26 @@ func (c *Controller) ImageShow(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintln(w, "error while Encoding image")
 		}
 		utils.DeleteImg(checkName)
-		fmt.Println("found in cache")
 		w.Write(buf)
-		//проверяю на наличие в db
 
+		//проверяю на наличие в db
 	} else if utils.FileExists(checkName) {
 
-		//file, err := os.Open("/home/greg/Рабочий стол/kartinochki/kartinochki/cmd/db/" + checkName)
 		file, err := os.Open(db + checkName)
 		if err != nil {
-			fmt.Println("err db img")
+			e.Wrap("Error open db image", err)
 		}
 
 		dbimg, err := jpeg.Decode(file)
 		if err != nil {
-			fmt.Println("err db img")
+			e.Wrap("Error Decode db Image", err)
 		}
 
 		buf, err := models.EncodeRawImage(dbimg, checkName)
 		if err != nil {
-			fmt.Fprintln(w, "error while Encoding image")
+			e.Wrap("Error encode rawImage", err)
 		}
 		utils.DeleteImg(checkName)
-		fmt.Println("found in db")
 		w.Write(buf)
 
 	} else {
@@ -95,12 +91,10 @@ func (c *Controller) ImageShow(w http.ResponseWriter, r *http.Request) {
 
 		buf, newImgName, err := models.EncodeImage(resImg, imgName, imageX, imageY)
 		if err != nil {
-			fmt.Fprintln(w, "error while Encoding image")
+			e.Wrap("Error encode image", err)
 		}
 		utils.DeleteImg(newImgName)
-
 		c.cache.Set(newImgName, resImg)
-		fmt.Println(newImgName + "gay")
 		utils.DeleteImg(imgName)
 
 		w.Header().Set("Content-Type", "image/jpeg")

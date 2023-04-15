@@ -6,6 +6,6 @@ func CascheSize() int {
 }
 
 func DbPath() string {
-	dbp := "/home/greg/Рабочий стол/kartinochki/db/"
+	dbp := "/home/greg/Projects/kartinochki/db/"
 	return dbp
 }

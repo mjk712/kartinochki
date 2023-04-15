@@ -11,15 +11,11 @@ import (
 	"github.com/mjk712/kartinochki/pkg/routes"
 )
 
-type app struct {
-}
-
 func main() {
 	r := mux.NewRouter()
 	cs := config.CascheSize()
 
-	// докинь .gitignore и закинь туда .exe, не хранят в репе обычно
-	cache := cash.NewLru(cs) // взять из конфига бы
+	cache := cash.NewLru(cs)
 	router := routes.NewRouter(r, cache)
 	router.KartinkiRoutes()
 	http.Handle("/", r)

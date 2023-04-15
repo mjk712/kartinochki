@@ -22,11 +22,11 @@ func TestCache(t *testing.T) {
 	t.Run("SimpleCache", func(t *testing.T) {
 		c := NewLru(5)
 
-		file, _ := os.Open("./kartinochki/pkg/cash/testDb/test1.jpg")
+		file, _ := os.Open("./kartinochki/cash/testDb/test1.jpg")
 		dbimg, _ := jpeg.Decode(file)
-		file2, _ := os.Open("./kartinochki/pkg/cash/testDb/abc1.jpg")
+		file2, _ := os.Open("./kartinochki/cash/testDb/abc1.jpg")
 		dbimg2, _ := jpeg.Decode(file2)
-		file3, _ := os.Open("./kartinochki/pkg/cash/testDb/xyz.jpg")
+		file3, _ := os.Open("./kartinochki/cash/testDb/xyz.jpg")
 		dbimg3, _ := jpeg.Decode(file3)
 
 		wasInCache := c.Set("test1", dbimg)
@@ -54,11 +54,11 @@ func TestCache(t *testing.T) {
 	t.Run("Purge and movetoDb logic", func(t *testing.T) {
 		c := NewLru(2)
 
-		file, _ := os.Open("./kartinochki/pkg/cash/testDb/test1.jpg")
+		file, _ := os.Open("./kartinochki/cash/testDb/test1.jpg")
 		dbimg, _ := jpeg.Decode(file)
-		file2, _ := os.Open("./kartinochki/pkg/cash/testDb/abc1.jpg")
+		file2, _ := os.Open("./kartinochki/cash/testDb/abc1.jpg")
 		dbimg2, _ := jpeg.Decode(file2)
-		file3, _ := os.Open("./kartinochki/pkg/cash/testDb/xyz.jpg")
+		file3, _ := os.Open("./kartinochki/cash/testDb/xyz.jpg")
 		dbimg3, _ := jpeg.Decode(file3)
 
 		c.Set("First", dbimg)
